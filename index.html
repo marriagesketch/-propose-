@@ -24,7 +24,7 @@
 <div id="viewMode"></div>
 
 <!-- Q1 -->
-<label>Q1 以下の中でプロポーズの時にほしいものはありますか？ほしいもの全て選んでください。</label>
+<label>Q1-1 以下の中でプロポーズの時にほしいものはありますか？ほしいもの全て選んでください。</label>
 <label><input type="checkbox" name="q1_1" value="a1_1-1">指輪</label>
 <label><input type="checkbox" name="q1_1" value="a1_1-2">花束</label>
 <label><input type="checkbox" name="q1_1" value="a1_1-3">手紙</label>
@@ -32,13 +32,15 @@
 <label><input type="checkbox" name="q1_1" value="a1_1-5" onchange="document.getElementById('q1_1_other').style.display=this.checked?'block':'none'">その他</label>
 <textarea id="q1_1_other" class="detail-textarea" style="display:none"></textarea>
 
-<!-- Q1-2 -->
-<label>Q プロポーズのときに指輪がほしいと答えた方、事前に一緒に見に行きたいですか？</label>
+<!-- Q1-2（Q1-1で「指輪」を選択した場合のみ表示） -->
+<div id="q1_2_group" style="display:none">
+<label>Q1-2 プロポーズのときに指輪がほしいと答えた方、事前に一緒に見に行きたいですか？</label>
 <label><input type="radio" name="q1_2" value="a1_2-1">事前にお店に一緒に行って婚約指輪を選びたい</label>
 <label><input type="radio" name="q1_2" value="a1_2-2">プロポーズの時はプロポーズリングをもらって、後から一緒に婚約指輪を選びたい</label>
 <label><input type="radio" name="q1_2" value="a1_2-3">婚約指輪の希望はある程度伝えた上で、お店で決めるのは相手に任せる</label>
 <label><input type="radio" name="q1_2" value="a1_2-4" onchange="document.getElementById('q1_2_other').style.display=this.checked?'block':'none'">その他</label>
 <textarea id="q1_2_other" class="detail-textarea"  style="display:none"></textarea>
+</div>
 
 <!-- Q2 -->
 <label>Q2 プロポーズ場所の希望はありますか？</label>
