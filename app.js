@@ -496,7 +496,7 @@ function renderViewMode(data, options = {}) {
 
     ${!selfPreview ? `
     <div class="cta-card">
-      <img src="image1.PNG" class="cta-image-left" alt="">
+      <img src="shareimage.webp" class="cta-image-left" alt="">
       <div class="cta-content">
         <h3 class="cta-title">あなたの理想のプロポーズも共有してみませんか？</h3>
         <p class="cta-text">
