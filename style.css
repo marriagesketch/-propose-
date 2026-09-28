@@ -539,3 +539,14 @@ input[type="range"]{
     font-size:18px;
   }
 }
+
+/********************************
+ * 状態バナー・回答編集ボタン（追加分）
+ ********************************/
+
+#editAnswerBtn:hover{
+  background:#fff6f7;
+}
+#refreshPairBtn:hover{
+  background:#f0f0f0;
+}
