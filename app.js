@@ -11,7 +11,7 @@
    ・「入力完了」を押すまでは相手はこちらの回答を見られない。
    ============================================================ */
 
-const LIFF_ID   = "2010606389-v29ZSV0f"; 
+const LIFF_ID   = "2010312230-mbcU49bW"; 
 const DRAFT_KEY = "proposal_plan_draft_v1";
 
 // ▼▼▼ デプロイ済みGAS Web AppのURL ▼▼▼
