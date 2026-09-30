@@ -11,11 +11,11 @@
    ・「入力完了」を押すまでは相手はこちらの回答を見られない。
    ============================================================ */
 
-const LIFF_ID   = "2010606389-v29ZSV0f"; // ※ 婚活すり合わせと別アプリとして登録する場合は差し替えてください
+const LIFF_ID   = "2010606389-v29ZSV0f"; 
 const DRAFT_KEY = "proposal_plan_draft_v1";
 
 // ▼▼▼ デプロイ済みGAS Web AppのURL ▼▼▼
-const GAS_ENDPOINT = "https://script.google.com/macros/s/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/exec";
+const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzZLpG3IWu9IJSQ_7DrX2DAfJbNsaS-yGkXPp7c3ZOdrkKh6I_-4JIwZjaR6C2RaBk9/exec";
 
 /* ============================================================
    Base64URL 変換ユーティリティ（暗号文の符号化に使用）
