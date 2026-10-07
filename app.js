@@ -353,8 +353,8 @@ function partnerReasonToText(reason) {
   switch (reason) {
     case "partner_ended":
       return {
-        title: "パートナーが解除されています",
-        text: "以前のお相手との真剣交際は終了しています。新しいパートナーを登録すると、プロポーズプランをご利用いただけます。"
+        title: "パートナー登録が必要です",
+        text: "プロポーズプランは、真剣交際のパートナー登録が完了した方のみご利用いただけます。先にパートナー登録を済ませてください。"
       };
     case "no_partner":
       return {
