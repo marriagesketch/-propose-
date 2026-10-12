@@ -1,6 +1,7 @@
 /* ============================================================
    プロポーズプラン – GAS バックエンド (Code.gs)
-   スプレッドシートID: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+https://docs.google.com/spreadsheets/d/1qIkyzML5IJk-BNAAap18_HBGcav5ms_Lw0ppkcJNhw4/edit?usp=sharing
+   スプレッドシートID: 1qIkyzML5IJk-BNAAap18_HBGcav5ms_Lw0ppkcJNhw4
    ------------------------------------------------------------
    【方式：自動ペア判定＋自動暗号鍵取得】
    ・ユーザーは暗号キーの入力も、個別の招待リンクも一切扱わない。
@@ -35,7 +36,7 @@
       発行された /exec URL を propose_app.js の GAS_ENDPOINT に設定する。
    ============================================================ */
 
-var SPREADSHEET_ID       = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'; // ← プロポーズプラン用スプレッドシートIDに差し替えてください
+var SPREADSHEET_ID       = '1qIkyzML5IJk-BNAAap18_HBGcav5ms_Lw0ppkcJNhw4'; // ← プロポーズプラン用スプレッドシートIDに差し替えてください
 var SHEET_NAME            = 'Answers';
 var ANALYTICS_SHEET_NAME  = 'Analytics';
 var DATA_START_ROW        = 2; // 1行目=見出し, 2行目以降がデータ
