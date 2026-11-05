@@ -1,7 +1,5 @@
 /* ============================================================
    プロポーズプラン – GAS バックエンド (Code.gs)
-https://docs.google.com/spreadsheets/d/1qIkyzML5IJk-BNAAap18_HBGcav5ms_Lw0ppkcJNhw4/edit?usp=sharing
-   スプレッドシートID: 1qIkyzML5IJk-BNAAap18_HBGcav5ms_Lw0ppkcJNhw4
    ------------------------------------------------------------
    【方式：自動ペア判定＋自動暗号鍵取得】
    ・ユーザーは暗号キーの入力も、個別の招待リンクも一切扱わない。
@@ -28,15 +26,19 @@ https://docs.google.com/spreadsheets/d/1qIkyzML5IJk-BNAAap18_HBGcav5ms_Lw0ppkcJN
    ------------------------------------------------------------
    デプロイ方法:
    1. スプレッドシートを開き「拡張機能 > Apps Script」でこのコードを貼り付ける。
-   2. 下記 SPREADSHEET_ID にスプレッドシートIDを設定する。
-   3. スクリプトプロパティに INTERNAL_SECRET を設定する
-      （Partners用GASと同じ値にすること）。
-   4. 下記 PARTNERS_ENDPOINT に、Partners用GASの /exec URLを設定する。
-   5. 「デプロイ > 新しいデプロイ」→ 種類「ウェブアプリ」でデプロイし、
-      発行された /exec URL を propose_app.js の GAS_ENDPOINT に設定する。
+   2. 「プロジェクトの設定 > スクリプト プロパティ」に次の3つを登録する
+      （値の前後にスペース・改行・引用符を入れないこと）。
+        SPREADSHEET_ID    … このスプレッドシートのID
+        PARTNERS_ENDPOINT … Partners用GASの /exec URL
+        INTERNAL_SECRET   … Partners用GASと同じ値
+      ※ ID・URL・シークレットはコードに直接書かないこと（漏えい防止）。
+   3. 「デプロイ > 新しいデプロイ」→ 種類「ウェブアプリ」でデプロイし、
+      発行された /exec URL を app.js の GAS_ENDPOINT に設定する。
+      コード変更後は「デプロイを管理 > 編集 > 新バージョン」で更新する
+      （プロパティのみの変更なら再デプロイ不要）。
    ============================================================ */
 
-var SPREADSHEET_ID       = '1qIkyzML5IJk-BNAAap18_HBGcav5ms_Lw0ppkcJNhw4'; // ← プロポーズプラン用スプレッドシートIDに差し替えてください
+var SPREADSHEET_ID       = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') || '';
 var SHEET_NAME            = 'Answers';
 var ANALYTICS_SHEET_NAME  = 'Analytics';
 var DATA_START_ROW        = 2; // 1行目=見出し, 2行目以降がデータ
@@ -76,7 +78,7 @@ var ANALYTICS_HEADER = [
 /* ------------------------------------------------------------
    Partners中央APIとの連携（ownerHash → 現在のパートナー＋暗号鍵材料）
    ------------------------------------------------------------ */
-var PARTNERS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzqT-qmVRh_jI04stlgYiWCypqWHjWkGv-0pNGkpvUt3c8FGQzQG_FBF7eWeb3frcDk/exec'; // ← Partners用GASの/exec URLを設定
+var PARTNERS_ENDPOINT = PropertiesService.getScriptProperties().getProperty('PARTNERS_ENDPOINT') || '';
 var INTERNAL_SECRET    = PropertiesService.getScriptProperties().getProperty('INTERNAL_SECRET') || '';
 var PARTNER_CACHE_SECONDS = 120; // 2分キャッシュ（Partnersへの往復回数を減らす）
 
@@ -89,6 +91,10 @@ function resolvePartner(ownerHash) {
   if (cached) return JSON.parse(cached);
 
   var result = { ok: false, active: false, everPartnered: false, partnerHash: '', pairKey: '' };
+  if (!PARTNERS_ENDPOINT || !INTERNAL_SECRET) {
+    Logger.log('PARTNERS_ENDPOINT または INTERNAL_SECRET が未設定です');
+    return result;
+  }
   try {
     var url = PARTNERS_ENDPOINT + '?action=status'
       + '&ownerHash=' + encodeURIComponent(ownerHash)
@@ -166,6 +172,7 @@ function getAnalyticsSheet() {
   return getOrCreateSheet_(ANALYTICS_SHEET_NAME, ANALYTICS_HEADER);
 }
 function getOrCreateSheet_(name, header) {
+  if (!SPREADSHEET_ID) throw new Error('スクリプトプロパティ SPREADSHEET_ID が未設定です');
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sheet = ss.getSheetByName(name);
   if (!sheet) {
