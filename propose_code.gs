@@ -54,7 +54,9 @@ var ACOL = {
   Q1_1: 5, Q1_1_OTHER: 6, Q1_2: 7, Q1_2_OTHER: 8,
   Q2: 9, Q2_OTHER: 10, Q3: 11, Q3_OTHER: 12,
   Q4: 13, Q5: 14,
-  CREATED_AT: 15, UPDATED_AT: 16, COMPLETED_AT: 17
+  CREATED_AT: 15, UPDATED_AT: 16, COMPLETED_AT: 17,
+  // ▼ 後から追加した列（既存データの列位置を崩さないよう末尾に追加）
+  Q1_3_SIZE: 18, Q1_3_COLOR: 19, Q2_2: 20
 };
 
 var ANSWERS_HEADER = [
@@ -67,7 +69,8 @@ var ANALYTICS_HEADER = [
   'q1_1', 'q1_1_other', 'q1_2', 'q1_2_other',
   'q2', 'q2_other', 'q3', 'q3_other',
   'q4', 'q5',
-  'createdAt', 'updatedAt', 'completedAt'
+  'createdAt', 'updatedAt', 'completedAt',
+  'q1_3_size', 'q1_3_color', 'q2_2'
 ];
 
 /* ------------------------------------------------------------
@@ -169,6 +172,13 @@ function getOrCreateSheet_(name, header) {
     sheet = ss.insertSheet(name);
     sheet.getRange(1, 1, 1, header.length).setValues([header]);
     sheet.setFrozenRows(1);
+  } else {
+    // 既存シートに新しい列が追加された場合、見出しだけ末尾に補う
+    var lastCol = sheet.getLastColumn();
+    if (lastCol < header.length) {
+      sheet.getRange(1, lastCol + 1, 1, header.length - lastCol)
+           .setValues([header.slice(lastCol)]);
+    }
   }
   return sheet;
 }
@@ -251,7 +261,8 @@ function upsertAnalyticsRow(sheet, pairKeyHash, ownerHash, completed, analytics,
     analytics.q2 || '', analytics.q2_other || '',
     analytics.q3 || '', analytics.q3_other || '',
     analytics.q4 || '', analytics.q5 || '',
-    createdAt, now, completedAt
+    createdAt, now, completedAt,
+    analytics.q1_3_size || '', analytics.q1_3_color || '', analytics.q2_2 || ''
   ];
 
   if (rowIndex) {

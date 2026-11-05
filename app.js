@@ -118,6 +118,9 @@ const CHECKBOX_LABELS = {
              "a1_1-5":"その他",
 };
 const OTHER_VALUE = { q1_1: "a1_1-5", q1_2: "a1_2-4", q2: "a2-5", q3: "a3-5" };
+const RING_VALUE       = "a1_1-1"; // Q1-1「指輪」
+const FLOWER_VALUE     = "a1_1-2"; // Q1-1「花束」
+const RESTAURANT_VALUE = "a2-1";   // Q2「レストラン」
 
 /* ============================================================
    チェックボックス・ラジオ収集ヘルパー
@@ -147,6 +150,39 @@ function updateQ1_2Visibility() {
   }
 }
 
+/* Q1-3（花束の詳細）：Q1-1で「花束」を選択した場合のみ表示 */
+function updateQ1_3Visibility() {
+  const cb = document.querySelector('input[name="q1_1"][value="a1_1-2"]');
+  const group = document.getElementById("q1_3_group");
+  if (!cb || !group) return;
+  group.style.display = cb.checked ? "block" : "none";
+  if (!cb.checked) {
+    ["q1_3_size", "q1_3_color"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+  }
+}
+
+/* Q2-2（レストランの希望）：Q2で「レストラン」を選択した場合のみ表示 */
+function updateQ2_2Visibility() {
+  const isRestaurant = getRadio("q2") === RESTAURANT_VALUE;
+  const group = document.getElementById("q2_2_group");
+  if (group) group.style.display = isRestaurant ? "block" : "none";
+  toggleDetail("q2_2", isRestaurant); // 非表示時は入力内容もクリア
+}
+
+/* すべての条件付き表示（自由記述欄・Q1-2・Q1-3・Q2-2）を現在の選択状態に合わせる */
+function syncConditionalVisibility() {
+  toggleDetail("q1_1_other", getChecked("q1_1").includes(OTHER_VALUE.q1_1));
+  toggleDetail("q2_other", getRadio("q2") === OTHER_VALUE.q2);
+  toggleDetail("q3_other", getRadio("q3") === OTHER_VALUE.q3);
+  updateQ1_2Visibility();
+  toggleDetail("q1_2_other", getRadio("q1_2") === OTHER_VALUE.q1_2);
+  updateQ1_3Visibility();
+  updateQ2_2Visibility();
+}
+
 /* ============================================================
    フォーム値の収集・復元・検証
    ============================================================ */
@@ -156,8 +192,11 @@ function collectFormData() {
     q1_1_other: document.getElementById("q1_1_other").value,
     q1_2:       getRadio("q1_2"),
     q1_2_other: document.getElementById("q1_2_other").value,
+    q1_3_size:  document.getElementById("q1_3_size").value,
+    q1_3_color: document.getElementById("q1_3_color").value,
     q2:         getRadio("q2"),
     q2_other:   document.getElementById("q2_other").value,
+    q2_2:       document.getElementById("q2_2").value,
     q3:         getRadio("q3"),
     q3_other:   document.getElementById("q3_other").value,
     q4:         document.getElementById("q4").value,
@@ -195,28 +234,25 @@ function restoreFormData(data) {
   setText("q1_1_other", data.q1_1_other);
   setRadio("q1_2", data.q1_2);
   setText("q1_2_other", data.q1_2_other);
+  setText("q1_3_size", data.q1_3_size);
+  setText("q1_3_color", data.q1_3_color);
   setRadio("q2", data.q2);
   setText("q2_other", data.q2_other);
+  setText("q2_2", data.q2_2);
   setRadio("q3", data.q3);
   setText("q3_other", data.q3_other);
   setText("q4", data.q4);
   setText("q5", data.q5);
 
-  toggleDetail("q1_1_other", getChecked("q1_1").includes(OTHER_VALUE.q1_1));
-  toggleDetail("q2_other", getRadio("q2") === OTHER_VALUE.q2);
-  toggleDetail("q3_other", getRadio("q3") === OTHER_VALUE.q3);
-  updateQ1_2Visibility();
-  toggleDetail("q1_2_other", getRadio("q1_2") === OTHER_VALUE.q1_2);
+  syncConditionalVisibility();
 }
 
 function clearFormFields() {
-  ["q1_1_other", "q1_2_other", "q2_other", "q3_other", "q4", "q5"]
+  ["q1_1_other", "q1_2_other", "q1_3_size", "q1_3_color", "q2_other", "q2_2", "q3_other", "q4", "q5"]
     .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   document.querySelectorAll('input[type="radio"], input[type="checkbox"]')
     .forEach(el => (el.checked = false));
-  ["q1_1_other", "q1_2_other", "q2_other", "q3_other"]
-    .forEach(id => toggleDetail(id, false));
-  updateQ1_2Visibility();
+  syncConditionalVisibility();
 }
 
 function validate(data) {
@@ -225,7 +261,7 @@ function validate(data) {
     errors.push("Q1-1: プロポーズの時にほしいものを選択してください。");
   if (data.q1_1 && data.q1_1.includes(OTHER_VALUE.q1_1) && !data.q1_1_other.trim())
     errors.push("Q1-1: 「その他」の内容を入力してください。");
-  if (data.q1_1 && data.q1_1.includes("a1_1-1") && !data.q1_2)
+  if (data.q1_1 && data.q1_1.includes(RING_VALUE) && !data.q1_2)
     errors.push("Q1-2: 指輪の準備について選択してください。");
   if (data.q1_2 === OTHER_VALUE.q1_2 && !data.q1_2_other.trim())
     errors.push("Q1-2: 「その他」の内容を入力してください。");
@@ -248,8 +284,11 @@ function buildAnalyticsPayload(data) {
     q1_1_other: data.q1_1_other || "",
     q1_2: lbl(data.q1_2),
     q1_2_other: data.q1_2_other || "",
+    q1_3_size: data.q1_3_size || "",
+    q1_3_color: data.q1_3_color || "",
     q2: lbl(data.q2),
     q2_other: data.q2_other || "",
+    q2_2: data.q2_2 || "",
     q3: lbl(data.q3),
     q3_other: data.q3_other || "",
     q4: data.q4 || "",
@@ -283,7 +322,15 @@ function renderAnswerRows(data) {
       a: (Array.isArray(data.q1_1) && data.q1_1.includes("a1_1-1"))
         ? lblWithOther(data.q1_2, data.q1_2_other, OTHER_VALUE.q1_2)
         : "（指輪を選択していないため対象外）" },
+    { q: "Q1-3 プロポーズのときに花束がほしいと答えた方、本数・サイズ、花の種類、色などに要望はありますか？",
+      a: (Array.isArray(data.q1_1) && data.q1_1.includes(FLOWER_VALUE))
+        ? `本数・サイズ：${r(data.q1_3_size)}\n種類、色：${r(data.q1_3_color)}`
+        : "（花束を選択していないため対象外）" },
     { q: "Q2 プロポーズ場所の希望はありますか？", a: lblWithOther(data.q2, data.q2_other, OTHER_VALUE.q2) },
+    { q: "Q2-2 レストランでプロポーズしてほしいと答えた方、お店の希望、料理ジャンルの希望などはありますか？",
+      a: data.q2 === RESTAURANT_VALUE
+        ? r(data.q2_2)
+        : "（レストランを選択していないため対象外）" },
     { q: "Q3 プロポーズの日程にこだわりがあれば教えてください。", a: lblWithOther(data.q3, data.q3_other, OTHER_VALUE.q3) },
     { q: "Q4 プロポーズについて、これだけは嫌というものがあれば教えてください。", a: r(data.q4) },
     { q: "Q5 上記の他に理想のプロポーズはありますか？", a: r(data.q5) },
@@ -303,8 +350,11 @@ function renderAnswerRows(data) {
 function setFormVisible(visible) {
   document.querySelectorAll(
     ".container > label, .container > input, .container > textarea, " +
-    ".container > #q1_2_group, .container > div.button-group"
+    ".container > #q1_2_group, .container > #q1_3_group, .container > #q2_2_group, " +
+    ".container > div.button-group"
   ).forEach(el => (el.style.display = visible ? "" : "none"));
+  // 表示に戻すときは、条件付きの欄（Q1-2/1-3/2-2・その他欄）を選択状態に合わせ直す
+  if (visible) syncConditionalVisibility();
 }
 
 function getOrCreateContainer(id) {
@@ -636,7 +686,11 @@ async function checkFriendship() {
     cb.addEventListener("change", () => {
       toggleDetail("q1_1_other", getChecked("q1_1").includes(OTHER_VALUE.q1_1));
       updateQ1_2Visibility();
+      updateQ1_3Visibility();
     })
+  );
+  document.querySelectorAll('input[name="q2"]').forEach(r =>
+    r.addEventListener("change", updateQ2_2Visibility)
   );
   [
     { name: "q1_2", otherId: "q1_2_other", otherVal: OTHER_VALUE.q1_2 },
@@ -647,7 +701,7 @@ async function checkFriendship() {
       r.addEventListener("change", () => toggleDetail(otherId, r.value === otherVal))
     );
   });
-  updateQ1_2Visibility();
+  syncConditionalVisibility();
 
   /* ----- 下書き保存 ----- */
   document.getElementById("draftBtn") &&
