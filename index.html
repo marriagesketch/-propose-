@@ -74,6 +74,12 @@
 <label><input type="radio" name="q2" value="a2-5" onchange="document.getElementById('q2_other').style.display=this.checked?'block':'none'">思い出の場所、その他</label>
 <textarea id="q2_other" class="detail-textarea"  style="display:none"></textarea>
 
+<!-- Q2-2（Q2-1で「指輪」を選択した場合のみ表示） -->
+<div id="q1_2_group" style="display:none">
+<label>Q プロポーズはレストランでしてほしいと選択した方、お店の希望、料理ジャンルの希望などはありますか？</label>
+<textarea id="q2_2" class="detail-textarea"  style="display:none"></textarea>
+</div>
+  
 <!-- Q3 -->
 <label>Q3 プロポーズの日程にこだわりがあれば教えてください。</label>
 <label><input type="radio" name="q3" value="a3-1">記念日</label>
