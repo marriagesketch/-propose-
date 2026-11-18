@@ -446,13 +446,22 @@ async function fetchPair(ownerHash) {
   return resp.json();
 }
 
-async function initAnswerScreen(ownerHash) {
+/* GASの起動待ち（コールドスタート）を、本番の通信より前に済ませておくための軽い呼び出し。
+   結果は使わず、失敗しても何もしない。 */
+function warmUpGas() {
+  try {
+    fetch(`${GAS_ENDPOINT}?action=ping`, { method: "GET" }).catch(() => {});
+  } catch (_) {}
+}
+
+/* prefetched: 先に開始しておいた fetchPair の Promise（無ければここで取得する） */
+async function initAnswerScreen(ownerHash, prefetched) {
   AppState.ownerHash = ownerHash;
   showStateCard("読み込み中", "パートナー情報を確認しています…", true);
 
   let result;
   try {
-    result = await fetchPair(ownerHash);
+    result = await (prefetched || fetchPair(ownerHash));
   } catch (e) {
     console.error("fetchPair failed", e);
     showPartnerRequired("server_error");
@@ -544,8 +553,12 @@ function wireSubmitButton(aesKey) {
     const originalLabel = submitBtn.textContent;
     submitBtn.textContent = "送信中…";
     try {
-      await submitAnswer(data, true, aesKey);
-      const result = await refetchPair();
+      const submitResult = await submitAnswer(data, true, aesKey);
+      // サーバーが保存後の最新状況(pair)を一緒に返すので、取り直しの通信は不要。
+      // （古いサーバー応答で pair が無い場合のみ、従来どおり取り直す）
+      let result = submitResult && submitResult.pair && submitResult.pair.ok ? submitResult.pair : null;
+      if (result) AppState.pairKey = result.pairKey;
+      else result = await refetchPair();
       if (result) await renderAnswerScreen(result);
     } catch (e) {
       console.error("submit error", e);
@@ -666,6 +679,7 @@ async function checkFriendship() {
    メイン処理
    ============================================================ */
 (async () => {
+  warmUpGas(); // LIFFの初期化と並行して、GASを先に起こしておく
   try {
     await liff.init({ liffId: LIFF_ID });
   } catch (e) {
@@ -678,6 +692,11 @@ async function checkFriendship() {
     liff.login();
     return;
   }
+
+  // パートナー確認は、友だち確認(最大でダイアログ待ち)を待たずに先に始める
+  const ownerHash = await sha256Hex(getLineUserId());
+  const pairPromise = fetchPair(ownerHash);
+  pairPromise.catch(() => {}); // 結果は後で await するので、ここでは未処理エラー扱いにしない
 
   await checkFriendship();
 
@@ -723,6 +742,5 @@ async function checkFriendship() {
   });
 
   /* ----- パートナー判定→回答画面へ（ユーザー操作は不要） ----- */
-  const ownerHash = await sha256Hex(getLineUserId());
-  await initAnswerScreen(ownerHash);
+  await initAnswerScreen(ownerHash, pairPromise);
 })();
