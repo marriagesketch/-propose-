@@ -532,19 +532,6 @@ async function renderAnswerScreen(fetchResult) {
   }
 }
 
-function renderStatusBanner(ownCompleted, partner) {
-  const container = getOrCreateContainer("statusBanner");
-  container.style.display = "block";
-  container.innerHTML = `
-    <div class="view-header" style="text-align:left; padding:16px 20px;">
-      <p style="margin:0; font-size:13px; line-height:1.7; color:#d96c7d; font-weight:700;">
-        このプランは、パートナーのどちらか1人のみが入力します。<br>
-        「入力完了」にすると、お相手は入力できなくなります。
-      </p>
-    </div>
-  `;
-}
-
 /* ============================================================
    お相手が既に入力している場合の閲覧専用ビュー（入力フォームは出さない）
    ============================================================ */
