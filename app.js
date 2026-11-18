@@ -15,8 +15,6 @@
 
 const LIFF_ID   = "2010312230-mbcU49bW"; 
 const DRAFT_KEY = "proposal_plan_draft_v1";
-
-// ▼▼▼ デプロイ済みGAS Web AppのURL ▼▼▼
 const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzZLpG3IWu9IJSQ_7DrX2DAfJbNsaS-yGkXPp7c3ZOdrkKh6I_-4JIwZjaR6C2RaBk9/exec";
 
 /* ============================================================
